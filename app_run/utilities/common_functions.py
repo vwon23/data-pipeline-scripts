@@ -1,10 +1,12 @@
 import sys, os
+from dotenv import load_dotenv
 import configparser
 import logging, logging.config
 
 import datetime as dt
 from pytz import timezone
 import re
+
 
 import pandas as pd
 import smtplib
@@ -33,6 +35,17 @@ def init(path_app_run):
     gvar = global_variables()
     gvar.path_app_run = path_app_run
     print(f'Application run path set as: {path_app_run}')
+
+
+def set_environment_variables():
+    '''
+    Sets os.environ values based on .env file located in parent folder of the app. (Only used for testing scripts locally)
+
+    '''
+    ## initalize environment variables
+    dotenv_dir = os.path.dirname(os.path.dirname(gvar.path_app_run))
+    dotenv_path =os.path.join(dotenv_dir, '.env')
+    load_dotenv(dotenv_path=dotenv_path)
 
 
 def get_config():
