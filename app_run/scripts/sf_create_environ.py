@@ -1,12 +1,9 @@
 #### Import libraries and run initial scripts
 import os, sys
-from pathlib import Path
 
-## Find path of the script then find the path of parent folder and add it to system path ##
-path_script = os.path.abspath(__file__)
-path_app_run = os.path.dirname(os.path.dirname(path_script))
-# path_script_dir = Path.cwd()
-# path_app_run = os.path.dirname(path_script_dir)
+## Find path of the script file then find the path of parent folder and add it to system path ##
+path_file = os.path.abspath(__file__)
+path_app_run = os.path.dirname(os.path.dirname(path_file))
 sys.path.append(path_app_run)
 
 ## import local modules
