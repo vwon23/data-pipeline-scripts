@@ -11,6 +11,7 @@ create_table_customers = """
     (   id integer,
         first_name varchar,
         last_name varchar
+        _etl_loaded_at timestamp default current_timestamp
     );
 """
 
@@ -52,7 +53,7 @@ create_table_payment = """
     status varchar,
     amount integer,
     created date,
-    _batched_at timestamp default current_timestamp
+    _etl_loaded_at timestamp default current_timestamp
     );
 """
 
