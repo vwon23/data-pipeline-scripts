@@ -221,7 +221,7 @@ def connect_snowflake_admin():
 
     '''
     try:
-        if not hasattr(gvar, 'sf_cur'):
+        if not hasattr(gvar, 'sf_cursor'):
             gvar.sf_conn = sf.connect(
                                     account=gvar.sf_account,
                                     user=gvar.sf_username,
@@ -252,7 +252,7 @@ def connect_snowflake():
 
     '''
     try:
-        if not hasattr(gvar, 'sf_cur'):
+        if not hasattr(gvar, 'sf_cursor'):
             gvar.sf_conn = sf.connect(
                                     account=gvar.sf_account,
                                     user=gvar.sf_username,
@@ -286,12 +286,12 @@ def sf_exec_query_return_df(query):
     logger.info('Executing query:\n' + query)
 
     try:
-        sf_dict_cursor = gvar.sf_cursor(sf.DictCursor)
+        sf_dict_cursor = gvar.sf_conn.cursor(sf.DictCursor)
         result = sf_dict_cursor.execute(query).fetchall()
     except Exception as e:
         logger.error(f'Error executing query to Snowflake account {gvar.sf_account}\n' + f'{e}')
 
-    logger.info(f'Successfully executed query to Snowflake account {gvar.sf_account}')
+
 
     result_df = pd.DataFrame(result)
     logger.info('Stored result of query into DataFrame')
