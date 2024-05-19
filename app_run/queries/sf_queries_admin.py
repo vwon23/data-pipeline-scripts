@@ -7,8 +7,8 @@ create_environ = """
         with WAREHOUSE_SIZE= XSMALL;
 
     grant all on database {SF_DATABASE} to role {SF_ROLE};
-    grant all on future schemas in database {SF_DATABASE} to role {SF_ROLE};
     grant all on future tables in database {SF_DATABASE} to role {SF_ROLE};
+    grant all on future schemas in database {SF_DATABASE} to role {SF_ROLE};
 
     grant usage on warehouse {SF_WH} to role {SF_ROLE};
     grant role {SF_ROLE} to role {SF_ADMIN_ROLE};
@@ -20,8 +20,8 @@ remove_environ = """
     revoke role {SF_ROLE} from role {SF_ADMIN_ROLE};
     revoke usage on warehouse {SF_WH} from role {SF_ROLE};
 
-    revoke all on future tables in database {SF_DATABASE} from role {SF_ROLE};
     revoke all on future schemas in database {SF_DATABASE} from role {SF_ROLE};
+    revoke all on future tables in database {SF_DATABASE} from role {SF_ROLE};
     revoke all on database {SF_DATABASE} from role {SF_ROLE};
 
     drop warehouse {SF_WH};

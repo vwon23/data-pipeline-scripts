@@ -13,7 +13,8 @@ import smtplib
 import boto3
 import pymysql
 import snowflake.connector as sf
-
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 
 
@@ -221,7 +222,7 @@ def connect_snowflake_admin():
 
     '''
     try:
-        if not hasattr(gvar, 'sf_cur'):
+        if not hasattr(gvar, 'sf_cursor'):
             gvar.sf_conn = sf.connect(
                                     account=gvar.sf_account,
                                     user=gvar.sf_username,
@@ -252,7 +253,7 @@ def connect_snowflake():
 
     '''
     try:
-        if not hasattr(gvar, 'sf_cur'):
+        if not hasattr(gvar, 'sf_cursor'):
             gvar.sf_conn = sf.connect(
                                     account=gvar.sf_account,
                                     user=gvar.sf_username,
@@ -286,12 +287,12 @@ def sf_exec_query_return_df(query):
     logger.info('Executing query:\n' + query)
 
     try:
-        sf_dict_cursor = gvar.sf_cursor(sf.DictCursor)
+        sf_dict_cursor = gvar.sf_conn.cursor(sf.DictCursor)
         result = sf_dict_cursor.execute(query).fetchall()
     except Exception as e:
         logger.error(f'Error executing query to Snowflake account {gvar.sf_account}\n' + f'{e}')
 
-    logger.info(f'Successfully executed query to Snowflake account {gvar.sf_account}')
+
 
     result_df = pd.DataFrame(result)
     logger.info('Stored result of query into DataFrame')
@@ -385,11 +386,70 @@ def send_email(mail_to, mail_msg):
     recipients = re.split('; |, |\*|\n', mail_to)
 
     server = smtplib.SMTP(host, 25)
-    server.connect(host, 25)
-    server.ehlo()
-    server.starttls()
-    server.ehlo()
-    server.login(gvar.email_from, gvar.smtp_password)
+    try:
+        server.connect(host, 25)
+        server.ehlo()
+        server.starttls()
+        server.ehlo()
+        server.login(gvar.email_from, gvar.smtp_password)
+        server.sendmail(gvar.email_from, recipients, mail_msg)
+        logger.info('E-mail sent successfully to {recipients}')
+    except Exception as e:
+        logger.error({e})
+    server.close()
 
-    server.sendmail(gvar.email_from, recipients, mail_msg)
+    ###---  E-mail functions   ---###
+def send_email_df(mail_to, df):
+    '''
+    Sets up sftp for email and sends DataFrame in an e-mail.
+
+    Parameters
+    ---------------
+    mail_to: str
+        E-mail address(s) to send E-mail to
+    df: str
+        DataFrame to send E-mail as
+
+    Returns
+    ---------------
+    None
+    '''
+    host = gvar.email_host
+    #recipients = mail_to.split(";")
+    recipients = re.split('; |, |\*|\n', mail_to)
+
+    html_table = df.to_html(index=False)
+
+    html_content = f"""
+    <html>
+    <body>
+        <p>Hi,<br>
+        Please find the DataFrame below:<br>
+        </p>
+        {html_table}
+    </body>
+    </html>
+    """
+
+    message = MIMEMultipart("alternative")
+    message['From'] = gvar.email_from
+    message['To'] = '; '.join(map(str, recipients))
+    message['Subject'] = 'Pandas DataFrame in HTML Format'
+
+    part = MIMEText(html_content, "html")
+    message.attach(part)
+
+    server = smtplib.SMTP(host, 25)
+
+    try:
+        server.connect(host, 25)
+        server.ehlo()
+        server.starttls()
+        server.ehlo()
+        server.login(gvar.email_from, gvar.smtp_password)
+        server.sendmail(gvar.email_from, recipients, message.as_string())
+        logger.info('E-mail sent successfully to {recipients}')
+    except Exception as e:
+        logger.error({e})
+
     server.close()

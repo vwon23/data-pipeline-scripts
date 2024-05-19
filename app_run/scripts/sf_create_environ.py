@@ -8,7 +8,7 @@ sys.path.append(path_app_run)
 
 ## import local modules
 import utilities.common_functions as cf
-import queries.sf_queries as sf_queries
+import queries.sf_queries_admin as sf_queries_admin
 
 ## Initalize global variable and set logger ##
 cf.init(path_app_run)
@@ -24,12 +24,12 @@ logger = cf.set_logger(loggername, logfile_name)
 
 def main():
     #### Parse SQL to be exectued
-    create_environ_sql = sf_queries.create_environ.format(SF_ADMIN_ROLE=cf.gvar.sf_admin_role,
+    create_environ_sql = sf_queries_admin.create_environ.format(SF_ADMIN_ROLE=cf.gvar.sf_admin_role,
                                                         SF_DATABASE=cf.gvar.sf_app_db,
                                                         SF_ROLE=cf.gvar.sf_app_role,
                                                         SF_WH=cf.gvar.sf_app_wh)
 
-    remove_environ_sql = sf_queries.remove_environ.format(SF_ADMIN_ROLE=cf.gvar.sf_admin_role,
+    remove_environ_sql = sf_queries_admin.remove_environ.format(SF_ADMIN_ROLE=cf.gvar.sf_admin_role,
                                                         SF_DATABASE=cf.gvar.sf_app_db,
                                                         SF_ROLE=cf.gvar.sf_app_role,
                                                         SF_WH=cf.gvar.sf_app_wh)
